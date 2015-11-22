@@ -1,0 +1,71 @@
+---
+title       : Madrid Air Quality Web Application
+subtitle    : 
+author      : nramon (http://github.com/nramon/)
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+---
+
+## Introduction
+
+The Madrid Air Quality Web Application attempts to display air quality related magnitudes from the city of [Madrid](http://en.wikipedia.org/wiki/Madrid) on a map in a user friendly way.
+
+The original datasets can be downloaded from [datos.madrid.es](http://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=aecb88a7e2b73410VgnVCM2000000c205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD), but hey are not very user friendly!
+
+```{r echo = FALSE}
+if (!file.exists("201410-12-calidad-aire-diario.txt")) {
+  download.file("http://datos.madrid.es/egob/catalogo/201410-12-calidad-aire-diario.txt", destfile = "201410-12-calidad-aire-diario.txt", method = "wget")
+}
+head(read.fwf("201410-12-calidad-aire-diario.txt", widths=c(8, 2, 2, 2, 2, 2, rep(6, 31)), stringsAsFactors=F), 1)
+```
+
+---
+
+## The Script
+
+With the help of the [official documentation](http://datos.madrid.es/FWProjects/egob/contenidos/datasets/ficheros/MedioAmbiente_CalidadAire/INTPHORA-DIA_V2.2.pdf) and the [European Air Quality Database](http://www.eea.europa.eu/data-and-maps/data/airbase-the-european-air-quality-database-8) we wrote the [air.quality.madrid.R](https://github.com/nramon/MadridAirQuality/blob/master/air.quality.madrid.R) script and turned the datasets into this:
+
+```{r echo = FALSE}
+if (!file.exists("air.quality.madrid.2015.csv")) {
+  download.file("https://raw.githubusercontent.com/nramon/MadridAirQuality/master/data/air.quality.madrid.2015.csv", destfile = "air.quality.madrid.2015.csv", method = "wget")
+}
+head(read.csv("air.quality.madrid.2015.csv"), 4)
+```
+
+---:
+
+## The Web Application (map) 
+
+The next step was building the [Madrid Air Quality Web Application](https://nramon.shinyapps.io/MadridAirQuality), which allows the user to interactively generate maps from the dataset:
+
+![screenshot](assets/img/screenshot_1.png)
+
+<style type="text/css">
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+}
+</style>
+
+---
+
+## The Web Application (summary)
+
+And also displays numeric summaries of the data:
+
+![screenshot](assets/img/screenshot_2.png)
+
+<style type="text/css">
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+}
+</style>
