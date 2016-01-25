@@ -48,5 +48,8 @@ The map of the city of Madrid is cached, it is not downloaded every time the app
 Rscript madrid.map.update.R
 ```
 
+## Screenshot
+![screenshot](https://raw.githubusercontent.com/nramon/MadridAirQuality/master/screenshot.png)
+
 ## Online demo
 There is an online demo at http://nramon.shinyapps.io/MadridAirQuality/, but the bandwidth is limited and it may be down for long periods of time.
