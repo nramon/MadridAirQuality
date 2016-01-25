@@ -1,3 +1,16 @@
+# Copyright (C) 2016 Ramon Novoa <ramonnovoa AT gmail DOT com>
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library(tidyr)
 library(dplyr)
 
@@ -5,31 +18,54 @@ library(dplyr)
 air.quality.madrid <- function() {
 
 	# Magnitudes from: http://datos.madrid.es/FWProjects/egob/contenidos/datasets/ficheros/MedioAmbiente_CalidadAire/INTPHORA-DIA_V2.2.pdf
-	magnitudes <- c("SO2", "CO", "NO", "NO2", "PM2.5", "PM10", "NOx", "O3", "TOL", "BEN", "EBE", "MXY", "PXY", "OXY", "TCH", "CH4", "NMHC", "UV", "VV", "DV", "TMP", "HR", "PRB", "RS", "LL", "LLA")
+	# Limits from http://ec.europa.eu/environment/air/quality/standards.htm
+	magnitudes <- read.csv("data/magnitudes.csv", stringsAsFactors = FALSE)
+	magnitudes <- magnitudes[order(magnitudes$Name),]
 
-	# Station codes from: http://datos.madrid.es/FWProjects/egob/contenidos/datasets/ficheros/MedioAmbiente_CalidadAire/INTPHORA-DIA_V2.2.pdf
-	madrid_stations <- c('28079001', '28079002', '28079003', '28079035', '28079004', '28079005', '28079039', '28079006', '28079007', '28079008', '28079009', '28079010', '28079038', '28079011', '28079012', '28079013', '28079040', '28079014', '28079015', '28079016', '28079017', '28079018', '28079019', '28079020', '28079036', '28079021', '28079022', '28079023', '28079024', '28079025', '28079026', '28079027', '28079047', '28079048', '28079049', '28079050', '28079054', '28079055', '28079056', '28079057', '28079058', '28079059', '28079086', '28079060', '28079099')
-
-	# Download station information. See: http://www.eea.europa.eu/data-and-maps/data/airbase-the-european-air-quality-database-8
-	if (!file.exists("AirBase_v8_stations.zip")) {
-		download.file("http://ftp.eea.europa.eu/www/AirBase_v8/AirBase_v8_stations.zip", destfile="AirBase_v8_stations.zip", method="wget")
-		unzip("AirBase_v8_stations.zip")
-	}
-
-	# Save station latitude and longitude.
-	stations <- read.csv("AirBase_v8_stations.csv", sep="\t")
-	stations <- select(stations, station_local_code, station_longitude_deg, station_latitude_deg)
-	stations$station_local_code <- as.character(stations$station_local_code)
+	# Stations from: http://datos.madrid.es/FWProjects/egob/contenidos/datasets/ficheros/MedioAmbiente_CalidadAire/INTPHORA-DIA_V2.2.pdf
+	# Coordinates from: http://www.eea.europa.eu/data-and-maps/data/airbase-the-european-air-quality-database-8
+	stations <- read.csv("data/stations.csv", stringsAsFactors = FALSE)
+	stations <- stations[order(stations$Location),]
 
 	list(
-		# Return known magnitudes.
-		magnitudes = function () {
-			magnitudes
+		# Return known magnitude abbreviations.
+		magnitude.abbreviations = function () {
+			magnitudes[, "Abbreviation"]
 		},
 
-		# Return known stations in Madrid.
-		stations = function () {
-			madrid_stations
+		# Return known magnitudes.
+		magnitude.limits = function (abbreviation = "") {
+			magnitudes[magnitudes$Abbreviation == abbreviation, c("Limit", "LimitPeriod")]
+		},
+
+		# Return known magnitudes.
+		magnitude.names = function () {
+			magnitudes[, "Name"]
+		},
+
+		# Return magnitude units.
+		magnitude.units = function () {
+			magnitudes[, "Unit"]
+		},
+
+		# Return station codes.
+		station.codes = function () {
+			stations[, "Station"]
+		},
+
+		# Return station locations.
+		station.locations = function () {
+			stations[, "Location"]
+		},
+
+		# Return station locations.
+		station.comments = function () {
+			stations[, "Comments"]
+		},
+
+		# Return longitude and latitude values for each station.
+		station.coordinates = function () {
+			stations[, c("Station", "Longitude", "Latitude")]
 		},
 
 		# Save air quality data in a more readable CSV file.
@@ -53,11 +89,14 @@ air.quality.madrid <- function() {
 				air_quality <- air_quality[,-7]
 			}
 	
+			# Remove the measurement technique and period columns.
+			air_quality <- air_quality[,-c(3, 4)]
+
 			# Set appropriate column names.
-			names(air_quality) <- c("Station", "Magnitude", "AnalysisTechnique", "AnalysisPeriod", "Year", "Month", c(1:31))
+			names(air_quality) <- c("Station", "Magnitude", "Year", "Month", c(1:31))
 	
 			# Leave one daily observation per row.
-			air_quality <- gather(air_quality, Day, Value, 7:37)
+			air_quality <- gather(air_quality, Day, Value, 5:35)
 			
 			# Separate the validation code from the actual value.
 			air_quality <- separate(air_quality, Value, c("Value", "ValidationCode"), sep=5)
@@ -66,56 +105,45 @@ air.quality.madrid <- function() {
 			air_quality <- filter(air_quality, ValidationCode == "V")
 					
 			# Remove the validation code from the dataset.
-			air_quality <- air_quality[,-9]
+			air_quality <- air_quality[,-7]
 			
 			# Convert values to double precision numbers.
 			air_quality$Value <- as.double(air_quality$Value)
 	
 			# Save magnitudes as a factor.
-			air_quality$Magnitude <- factor(air_quality$Magnitude, levels=c(01, 06, 07, 08, 09, 10, 12, 14, 20, 30, 35, 37, 38, 39, 42, 43, 44, 80, 81, 82, 83, 86, 87, 88, 89, 92), labels=magnitudes)
+			air_quality$Magnitude <- factor(air_quality$Magnitude, levels=magnitudes[, "Magnitude"], labels=magnitudes[, "Abbreviation"])
 			
 			# Remove unknown magnitudes.
 			# Note: There is no description for magnitude 85 in the docs!!!
 			air_quality <- air_quality[!is.na(air_quality$Magnitude),]
 			
-			# Save station codes as strings
-			air_quality$Station <- as.character(air_quality$Station)
-
 			# Some station codes changed after 2011. Rename old codes to new codes.
-			air_quality[air_quality$Station == "28079003", "Station"] <- "28079035" # Pza. del Carmen.
-			air_quality[air_quality$Station == "28079005", "Station"] <- "28079039" # Barrio del Pilar.
-			air_quality[air_quality$Station == "28079010", "Station"] <- "28079038" # Cuatro Caminos.
-			air_quality[air_quality$Station == "28079013", "Station"] <- "28079040" # Vallecas.
-			air_quality[air_quality$Station == "28079020", "Station"] <- "28079036" # Moratalaz.
-			air_quality[air_quality$Station == "28079086", "Station"] <- "28079060" # Tres Olivos.
+			air_quality[air_quality$Station == 28079003, "Station"] <- 28079035 # Pza. del Carmen.
+			air_quality[air_quality$Station == 28079005, "Station"] <- 28079039 # Barrio del Pilar.
+			air_quality[air_quality$Station == 28079010, "Station"] <- 28079038 # Cuatro Caminos.
+			air_quality[air_quality$Station == 28079013, "Station"] <- 28079040 # Vallecas.
+			air_quality[air_quality$Station == 28079020, "Station"] <- 28079036 # Moratalaz.
+			air_quality[air_quality$Station == 28079086, "Station"] <- 28079060 # Tres Olivos.
+
+			# Fix the Day and Year columns.
+			air_quality$Day <- as.integer(air_quality$Day)
+			air_quality$Year <- air_quality$Year + 2000
 
 			# Combine Day, Month and Year into Date.
-			air_quality$Day <- as.numeric(air_quality$Day)
-			air_quality$Year <- air_quality$Year + 2000
-			air_quality <- unite(air_quality, "Date", Year, Month, Day, sep="-")
-		
-			# Add station latitude and longitude coordinates to the air quality dataset.
-			air_quality <- merge(air_quality, stations, by.x="Station", by.y="station_local_code")
-			names(air_quality)[7] <- "Longitude"
-			names(air_quality)[8] <- "Latitude"
+			#air_quality <- unite(air_quality, "Date", Year, Month, Day, sep="-")
 
+			# Rearrange the columns.
+			air_quality <- air_quality[,c("Station", "Year", "Month", "Day", "Magnitude", "Value")]
+
+			# Sort by date.
+			air_quality <- arrange(air_quality, Month, Day)
+		
 			# Save the dataset to disk.
-			write.csv(air_quality, file=output, row.names=F)
+			write.csv(air_quality, file=output, row.names=F, quote=F)
+
+			# Clean-up.
+			unlink(input)
 		}
 	)
 }
 
-#air.quality <- air.quality.madrid()
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-12-calidad-aire-diario.txt", "air.quality.madrid.2015.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-11-calidad-aire-diario.txt", "air.quality.madrid.2014.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-10-calidad-aire-diario.txt", "air.quality.madrid.2013.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-9-calidad-aire-diario.txt", "air.quality.madrid.2012.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-8-calidad-aire-diario.txt", "air.quality.madrid.2011.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-7-calidad-aire-diario.txt", "air.quality.madrid.2010.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-6-calidad-aire-diario.txt", "air.quality.madrid.2009.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-5-calidad-aire-diario.txt", "air.quality.madrid.2008.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-4-calidad-aire-diario.txt", "air.quality.madrid.2007.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-3-calidad-aire-diario.txt", "air.quality.madrid.2006.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-2-calidad-aire-diario.txt", "air.quality.madrid.2005.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-1-calidad-aire-diario.txt", "air.quality.madrid.2004.csv")
-#air.quality$write.csv("http://datos.madrid.es/egob/catalogo/201410-0-calidad-aire-diario.txt", "air.quality.madrid.2003.csv")
