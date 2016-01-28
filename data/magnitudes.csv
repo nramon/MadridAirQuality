@@ -1,25 +1,25 @@
-Name,Abbreviation,Magnitude,Unit,Limit,LimitPeriod
-Benzene,BEN,30,µg/m³,5,µg/m³ per year (average)
+Name,Abbreviation,Magnitude,Unit,Limit,LimitDescription
+Benzene,BEN,30,µg/m³,5,µg/m³ yearly average
 Hydrocarbons (methane),CH4,43,mg/m³,0,
-Carbon monoxide,CO,6,mg/m³,10,mg/m³ (maximum daily 8 hour mean)
-Wind direction,DV,82,º (or quadrant),0,
+Carbon monoxide,CO,6,mg/m³,10,mg/m³ maximum daily 8 hour mean
+Wind direction,DV,82,º or quadrant,0,
 Ethylbenzene,EBE,35,µg/m³,0,
 Relative humidity,HR,86,%,0,
 Acid Rain,LLA,89,pH,0,
 Precipitation,LL,92,l/m²,0,
 Metaxylene,MXY,37,µg/m³,0,
 Non-methane hydrocarbons (hexane),NMHC,44,mg/m³,0,
-Nitrogen dioxide,NO2,7,µg/m³,200,µg/m³ per hour (average)
+Nitrogen dioxide,NO2,7,µg/m³,200,µg/m³ hourly average
 Nitrogen monoxide,NO,8,µg/m³,0,
 Nitrogen oxides,NOx,12,µg/m³,0,
-Ozone,O3,14,µg/m³,120,µg/m³ (maximum daily 8 hour mean)
+Ozone,O3,14,µg/m³,120,µg/m³ maximum daily 8 hour mean
 Orthoxylene,OXY,39,µg/m³,0,
-Particulate matter < 10 µm,PM10,10,µg/m³,50,µg/m³ per day (average)
-Particulate matter < 2.5 µm,PM2.5,9,µg/m³,25,µg/m³ per year (average)
+Particulate matter < 10 µm,PM10,10,µg/m³,50,µg/m³ daily average
+Particulate matter < 2.5 µm,PM2.5,9,µg/m³,25,µg/m³ yearly average
 Pressure,PRB,87,mb,0,
 Paraxylene,PXY,38,µg/m³,0,
 Solar irradiance,RS,88,kW/m²,0,
-Sulfur dioxide,SO2,1,µg/m³,350,µg/m³ per hour (average)
+Sulfur dioxide,SO2,1,µg/m³,350,µg/m³ hourly average
 Total hydrocarbons (hexane),TCH,42,mg/m³,0,
 Temperature,TMP,83,ºC,0,
 Toluene,TOL,20,µg/m³,0,

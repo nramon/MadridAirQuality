@@ -35,7 +35,7 @@ air.quality.madrid <- function() {
 
 		# Return known magnitudes.
 		magnitude.limits = function (abbreviation = "") {
-			magnitudes[magnitudes$Abbreviation == abbreviation, c("Limit", "LimitPeriod")]
+			magnitudes[magnitudes$Abbreviation == abbreviation, c("Limit", "LimitDescription")]
 		},
 
 		# Return known magnitudes.

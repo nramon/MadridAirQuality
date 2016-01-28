@@ -169,7 +169,7 @@ shinyServer(function(input, output) {
 			if (limits$Limit != 0) {
 				year_plot <- year_plot +
 							geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show_guide = T) +
-							ggtitle(paste("- Limit value ", limits$Limit, limits$LimitPeriod)) +
+							ggtitle(paste("- Limit value:", limits$Limit, limits$LimitDescription)) +
 							theme(plot.title = element_text(color="red"))
 				month_plot <- month_plot + geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show_guide = T)
 				day_plot <- day_plot + geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show_guide = T)
