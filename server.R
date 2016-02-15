@@ -20,7 +20,7 @@ library(shiny)
 library(tidyr)
 
 # Instantiate an air.quality.madrid object.
-source("air.quality.madrid.R")
+source("lib/air.quality.madrid.R")
 air_quality <- air.quality.madrid()
 
 # Air quality data.
@@ -30,8 +30,6 @@ air_quality_data <- NA
 year_data <- NA
 month_data <- NA
 day_data <- NA
-
-# Current year. Due to their size, datasets are split by year.
 
 # Current date. Used to reuse filtered data between tabs.
 cur_year <- 0

@@ -14,7 +14,7 @@
 library(shiny)
 
 # Instantiate an air.quality.madrid object.
-source("air.quality.madrid.R")
+source("lib/air.quality.madrid.R")
 air_quality <- air.quality.madrid()
 
 # List years with available data.

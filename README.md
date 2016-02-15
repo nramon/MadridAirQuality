@@ -37,7 +37,7 @@ Lastly, point your browser to: http://127.0.0.1:8080
 To update the air quality datasets (and download any new datasets) run the following command from the MadridAirQuality directory:
 
 ```
-Rscript air.quality.update.R
+Rscript util/air.quality.update.R
 ```
 
 ## Updating the map
@@ -45,7 +45,7 @@ Rscript air.quality.update.R
 The map of the city of Madrid is cached, it is not downloaded every time the application is run. If for any reason you want to update it run the following command from the MadridAirQuality directory:
 
 ```
-Rscript madrid.map.update.R
+Rscript util/madrid.map.update.R
 ```
 
 ## Screenshot
