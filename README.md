@@ -49,7 +49,7 @@ Rscript util/madrid.map.update.R
 ```
 
 ## Screenshot
-![screenshot](https://raw.githubusercontent.com/nramon/MadridAirQuality/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/nramon/MadridAirQuality/master/doc/screenshot.png)
 
 ## Online demo
 There is an online demo at http://nramon.shinyapps.io/MadridAirQuality/, but the bandwidth is limited and it may be down for long periods of time.
