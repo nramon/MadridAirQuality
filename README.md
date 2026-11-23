@@ -1,5 +1,5 @@
 # MadridAirQuality
-This is a web application written in R as a project for the [Developing Data Products](http://www.coursera.org/learn/data-products) course. It displays several magnitudes related to the air quality of the city of [Madrid](http://en.wikipedia.org/wiki/Madrid). The original raw data can be downloaded from [http://datos.madrid.es](http://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=aecb88a7e2b73410VgnVCM2000000c205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD).
+This is a web application written in R as a project for the [Developing Data Products](http://www.coursera.org/learn/data-products) course. It displays several magnitudes related to the air quality of the city of [Madrid](http://en.wikipedia.org/wiki/Madrid). The original raw data can be downloaded from [https://datos.madrid.es](https://datos.madrid.es/dataset/201410-0-calidad-aire-diario).
 
 ## Running the MadridAirQuality web application
 To run the application locally you have to install [R](http://www.r-project.org/).
@@ -15,13 +15,11 @@ R
 From the R CMD interface install the required R packages:
 
 ```
-install.packages("dplyr")
-install.packages("ggmap")
-install.packages("ggplot2")
-install.packages("gridExtra")
-install.packages("shiny")
-install.packages("tidyr")
+install.packages(c("dplyr", "ggmap", "ggplot2", "gridExtra", "jsonlite", "remotes", "scales", "shiny", "tidyr"))
+remotes::install_github("nramon/madrid.air")
 ```
+
+[madrid.air](https://github.com/nramon/madrid.air) parses the raw air quality data and is needed to update the datasets.
 
 Load the shiny package and run the web application:
 
@@ -34,18 +32,22 @@ Lastly, point your browser to: http://127.0.0.1:8080
 
 ## Updating the air quality datasets
 
-To update the air quality datasets (and download any new datasets) run the following command from the MadridAirQuality directory:
+To download any new datasets and update the existing ones run the following command from the MadridAirQuality directory:
 
 ```
 Rscript util/air.quality.update.R
 ```
 
+Datasets that were already downloaded are skipped, except for the latest years, which are updated regularly. Use `--force` to download everything again.
+
+The daily air quality datasets contain data from 2001 on. Meteorological magnitudes are not included, and some hydrocarbons (CH4, NMHC and TCH) are only available until 2020.
+
 ## Updating the map
 
-The map of the city of Madrid is cached, it is not downloaded every time the application is run. If for any reason you want to update it run the following command from the MadridAirQuality directory:
+The map of the city of Madrid is cached, it is not downloaded every time the application is run. If for any reason you want to update it, get an API key from [Stadia Maps](https://client.stadiamaps.com/) and run the following command from the MadridAirQuality directory:
 
 ```
-Rscript util/madrid.map.update.R
+STADIA_MAPS_API_KEY=<key> Rscript util/madrid.map.update.R
 ```
 
 ## Screenshot

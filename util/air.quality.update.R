@@ -11,19 +11,49 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-source("lib/air.quality.madrid.R")
 
-# Update CSV files with data from: http://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=aecb88a7e2b73410VgnVCM2000000c205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD
-tryCatch({
-	air.quality <- air.quality.madrid()
-	for (idx in seq(0, 99)) {
-		input <- paste("http://datos.madrid.es/egob/catalogo/201410-", idx, "-calidad-aire-diario.txt", sep = "")
+# Updates the air quality datasets in data/ with the daily data published at:
+# https://datos.madrid.es/dataset/201410-0-calidad-aire-diario
+#
+# Usage: Rscript util/air.quality.update.R [--force]
+#
+# One CSV file is published per year (the most recent years are published
+# together in a single file). Years that have already been downloaded are
+# skipped unless --force is given. The files for the most recent years are
+# always downloaded because they are updated regularly.
 
-		# The first dataset (201410-0-calidad-aire-diario.txt) corresponds to 2003.
-		output <- paste("data/air.quality.madrid.", 2003 + idx, ".csv", sep = "")
+library(jsonlite)
+library(madrid.air)
 
-		air.quality$write.csv(input, output)
+force <- "--force" %in% commandArgs(trailingOnly = TRUE)
+
+# List the files published in the dataset. The description of each file ends
+# with the year, or with "Desde <year>" for the file with the latest years.
+api <- "https://datos.madrid.es/api/3/action/package_show?id=201410-0-calidad-aire-diario"
+resources <- fromJSON(api)$result$resources
+resources <- resources[resources$format == "CSV", ]
+resources$latest <- grepl("^.*Desde [0-9]{4}$", resources$description)
+resources$year <- as.integer(sub("^.*?([0-9]{4})$", "\\1", resources$description))
+
+for (idx in order(resources$year)) {
+	year <- resources$year[idx]
+	output <- paste("data/air.quality.madrid.", year, ".csv", sep = "")
+
+	# Years that were already downloaded do not change.
+	if (!force && !resources$latest[idx] && file.exists(output)) {
+		next
 	}
-}, finally = {
-})
 
+	# Download and parse the dataset.
+	message("Downloading ", resources$description[idx], "...")
+	input <- tempfile(fileext = ".csv")
+	download.file(resources$url[idx], destfile = input, mode = "wb", quiet = TRUE)
+	air_quality <- madrid.air.parse(input)
+	unlink(input)
+
+	# Save one file per year.
+	for (y in sort(unique(air_quality$Year))) {
+		output <- paste("data/air.quality.madrid.", y, ".csv", sep = "")
+		write.csv(air_quality[air_quality$Year == y, ], file = output, row.names = FALSE, quote = FALSE)
+	}
+}
