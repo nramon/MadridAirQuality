@@ -84,7 +84,7 @@ filterData <- function(magnitude=cur_magnitude, year=cur_year, month=cur_month, 
 ################################################################################
 # Main server function.
 ################################################################################
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
 	# Load the map.
 	if (is.na(map)) {
@@ -105,7 +105,7 @@ shinyServer(function(input, output) {
 			plot <- ggmap(map, darken = c(.5, "black")) +
 			scale_colour_manual(name="", values=setNames(c('green', 'red'), c(T, F))) +
 			geom_point(aes(x=Longitude, y=Latitude, size=Value, color=Selected), data=merge(day_data, air_quality$station.coordinates(), by="Station"), alpha=.6) +
-			guides(colour=F) +
+			guides(colour="none") +
 			guides(fill = guide_colorbar(barwidth = 0.5, barheight = 10)) +
 			xlab(label='Longitude') +
 			ylab(label='Latitude')
@@ -130,10 +130,10 @@ shinyServer(function(input, output) {
 			year_data$Selected <- year_data$Station == input$station
 			year_plot <- ggplot(aes(x=as.Date(Date), y=Value, color=Selected),
 								data=unite(year_data, "Date", Year, Month, Day, sep="-")) +
-			geom_point(show_guide = FALSE) +
+			geom_point(show.legend = FALSE) +
 			scale_colour_manual(name="", values=setNames(c('red', 'skyblue4'), c(T, F))) +
 			scale_x_date(breaks="1 month", labels=date_format("%b")) +
-			guides(colour=F) +
+			guides(colour="none") +
 			expand_limits(y=max_y) +
 			xlab(label=input$year) +
 			ylab(label="")
@@ -144,7 +144,7 @@ shinyServer(function(input, output) {
 								 data=unite(month_data, "Date", Year, Month, Day, sep="-")) +
 			geom_jitter(width=0.4, height=0) +
 			scale_colour_manual(name="", values=setNames(c('red', 'skyblue3'), c(T, F))) +
-			guides(colour=F) +
+			guides(colour="none") +
 			expand_limits(y=max_y) +
 			scale_x_date(breaks="1 day", labels=date_format("%d")) +
 			xlab(label=paste(month.name[input$month], " (horizontal jitter was added for clarity)")) +
@@ -157,7 +157,7 @@ shinyServer(function(input, output) {
 			geom_bar(stat="identity") +
 			scale_fill_manual(name="", values=setNames(c('red', 'skyblue2'), c(T, F))) +
 			scale_color_manual(name="", values=setNames(c('red', 'skyblue2'), c(T, F))) +
-			guides(colour=F, fill=F) +
+			guides(colour="none", fill="none") +
 			expand_limits(y=max_y) +
 			theme(axis.text.x=element_text(angle=45, hjust=1)) +
 			xlab(label=input$day) +
@@ -166,11 +166,11 @@ shinyServer(function(input, output) {
 			# Draw limits.
 			if (limits$Limit != 0) {
 				year_plot <- year_plot +
-							geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show_guide = T) +
+							geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show.legend = TRUE) +
 							ggtitle(paste("- Limit value:", limits$Limit, limits$LimitDescription)) +
 							theme(plot.title = element_text(color="red"))
-				month_plot <- month_plot + geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show_guide = T)
-				day_plot <- day_plot + geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show_guide = T)
+				month_plot <- month_plot + geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show.legend = TRUE)
+				day_plot <- day_plot + geom_hline(data = limits, aes(yintercept = Limit), colour = "red", show.legend = TRUE)
 			}
 
 			grid.arrange(year_plot, month_plot, day_plot, ncol=1)

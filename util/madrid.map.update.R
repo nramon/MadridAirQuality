@@ -11,6 +11,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Downloads the map of Madrid used by the application. The map tiles are
+# provided by Stadia Maps, which requires an API key (see
+# https://client.stadiamaps.com/). Set it in the STADIA_MAPS_API_KEY
+# environment variable:
+#
+#   STADIA_MAPS_API_KEY=<key> Rscript util/madrid.map.update.R
+
 library(ggmap)
-map <- get_map(location=make_bbox(lon=c(-3.774444, -3.575), lat=c(40.518056, 40.346944)))
+
+register_stadiamaps(Sys.getenv("STADIA_MAPS_API_KEY"), write = FALSE)
+map <- get_stadiamap(bbox = c(left = -3.774444, bottom = 40.346944, right = -3.575, top = 40.518056),
+                     zoom = 12, maptype = "stamen_toner_lite")
 saveRDS(map, file = "data/map.madrid.rds")
