@@ -87,7 +87,7 @@ filterData <- function(magnitude=cur_magnitude, year=cur_year, month=cur_month, 
 shinyServer(function(input, output, session) {
 
 	# Load the map.
-	if (is.na(map)) {
+	if (!inherits(map, "ggmap")) {
 		withProgress(message="Loading map data...", value=0, {
 			map <<- readRDS("data/map.madrid.rds")
 		})
