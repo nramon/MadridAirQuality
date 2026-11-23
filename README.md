@@ -55,6 +55,20 @@ The map of the city of Madrid is cached, it is not downloaded every time the app
 STADIA_MAPS_API_KEY=<key> Rscript util/madrid.map.update.R
 ```
 
+## Deploying the application
+
+The online demo is deployed to [shinyapps.io](https://www.shinyapps.io/). The datasets are bundled with the application, so the demo shows the data it was deployed with. To update it after downloading new data (`make update`), authorize your shinyapps.io account once using the name, token and secret from the dashboard (Account > Tokens) of the account that owns the application:
+
+```
+R -e "rsconnect::setAccountInfo(name = '<name>', token = '<token>', secret = '<secret>')"
+```
+
+Then deploy:
+
+```
+make deploy
+```
+
 ## Screenshot
 ![screenshot](https://raw.githubusercontent.com/nramon/MadridAirQuality/master/doc/screenshot.png)
 
