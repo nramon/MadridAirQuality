@@ -1,6 +1,7 @@
+# MadridAirQuality
+
 [![test](https://github.com/nramon/MadridAirQuality/actions/workflows/test.yaml/badge.svg)](https://github.com/nramon/MadridAirQuality/actions/workflows/test.yaml)
 
-# MadridAirQuality
 This is a web application written in R as a project for the [Developing Data Products](http://www.coursera.org/learn/data-products) course. It displays several magnitudes related to the air quality of the city of [Madrid](http://en.wikipedia.org/wiki/Madrid). The original raw data can be downloaded from [https://datos.madrid.es](https://datos.madrid.es/dataset/201410-0-calidad-aire-diario).
 
 ## Running the MadridAirQuality web application
